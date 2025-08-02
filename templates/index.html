@@ -1,1 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>CPE Entries</title>
+</head>
+<body>
 
+<h2>CPE Entries</h2>
+
+<input type="text" id="searchBox" placeholder="Search title..." />
+<button onclick="loadCPEs()">Search</button>
+
+<table border="1" id="cpeTable">
+    <thead></thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    function loadCPEs() {
+        const keyword = document.getElementById("searchBox").value.trim();
+        const url = `/api/cpes?limit=10000&keyword=${encodeURIComponent(keyword)}`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const table = document.getElementById("cpeTable");
+                const thead = table.querySelector("thead");
+                const tbody = table.querySelector("tbody");
+                thead.innerHTML = "";
+                tbody.innerHTML = "";
+
+                if (data.data.length === 0) {
+                    tbody.innerHTML = "<tr><td>No data found</td></tr>";
+                    return;
+                }
+
+                
+                const headers = Object.keys(data.data[0]);
+                const headerRow = document.createElement("tr");
+                headers.forEach(h => {
+                    const th = document.createElement("th");
+                    th.textContent = h;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+
+                
+                data.data.forEach(row => {
+                    const tr = document.createElement("tr");
+                    headers.forEach(h => {
+                        const td = document.createElement("td");
+                        td.textContent = row[h] || '';
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+            });
+    }
+
+    window.onload = loadCPEs;
+</script>
+
+</body>
+</html>
